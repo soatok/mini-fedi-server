@@ -22,7 +22,7 @@
     }
   },
   "require": {
-    "php": "^8.1",
+    "php": "^8.2",
     "ext-pdo": "*",
     "ezyang/htmlpurifier": "^4",
     "fedi-e2ee/pkd-crypto": "^0.21|^1",
