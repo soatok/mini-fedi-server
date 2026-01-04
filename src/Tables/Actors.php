@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Soatok\MiniFedi\Tables;
 
 use Override;
+use ReturnTypeWillChange;
 use Soatok\MiniFedi\Exceptions\TableException;
 use Soatok\MiniFedi\Table;
 use Soatok\MiniFedi\TableRecordInterface;
