@@ -1,4 +1,10 @@
 /.idea
+/config/local
+/config/*.json
+/config/*.key
+!/config/local/.gitkeep
 /composer.lock
 /composer.phar
+/tmp
+!/tmp/.gitkeep
 /vendor
