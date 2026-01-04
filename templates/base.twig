@@ -1,0 +1,10 @@
+<!DOCTPYE html>
+<html lang="en">
+<head>
+    <title>{% block pageTitle %}{% endblock %}</title>
+</head>
+<body>{% block bodyTag %}
+    <nav>{% block nav %}Navigation goes here{% endblock %}</nav>
+    <content>{% block content %}{% endblock %}</content>
+{% endblock %}</body>
+</html>

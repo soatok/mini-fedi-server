@@ -7,6 +7,7 @@ use Psr\Http\Message\{
     ServerRequestInterface,
 };
 use Psr\Http\Server\RequestHandlerInterface;
+use Soatok\MiniFedi\FediServerConfig;
 use Soatok\MiniFedi\Traits\ReqTrait;
 
 class WebFinger implements RequestHandlerInterface
@@ -15,6 +16,8 @@ class WebFinger implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        $config = FediServerConfig::instance();
+        $vars = $config->vars();
         $params = $request->getQueryParams();
         if (!array_key_exists("resource", $params)) {
             return $this->error('missing resource parameter', 400);
@@ -27,6 +30,9 @@ class WebFinger implements RequestHandlerInterface
         $user = $matches[1];
         $domain = $matches[2];
 
-        throw new \Exception('Not implemented');
+        if (!hash_equals($vars->hostname, $domain)) {
+            // Remote webfigner query
+        }
+
     }
 }

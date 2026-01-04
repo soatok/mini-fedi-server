@@ -23,6 +23,7 @@
   },
   "require": {
     "php": "^8.1",
+    "ext-pdo": "*",
     "ezyang/htmlpurifier": "^4",
     "fedi-e2ee/pkd-crypto": "^0.21|^1",
     "guzzlehttp/guzzle": "^6|^7",
