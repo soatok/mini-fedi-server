@@ -4,11 +4,12 @@ namespace Soatok\MiniFedi\Tables\Records;
 
 use Soatok\MiniFedi\Exceptions\TableException;
 use Soatok\MiniFedi\TableRecordInterface;
+use Soatok\MiniFedi\Traits\TableRecordTrait;
 use TypeError;
 
 class ActorRecord implements TableRecordInterface
 {
-    private ?int $primaryKey = null;
+    use TableRecordTrait;
 
     public function __construct(
         public string $username = '',
@@ -18,26 +19,16 @@ class ActorRecord implements TableRecordInterface
         public string $preferredUsername = '',
     ) {}
 
-    public function hasPrimaryKey(): bool
+    public function toArray(): array
     {
-        return !is_null($this->primaryKey);
-    }
-
-    public function getPrimaryKey(): int|string
-    {
-        if (is_null($this->primaryKey)) {
-            throw new TableException('Primary Key has not been set');
-        }
-        return $this->primaryKey;
-    }
-
-    public function setPrimaryKey(int|string $primaryKey): self
-    {
-        if (is_string($primaryKey)) {
-            throw new TypeError('Primary Key must be integer');
-        }
-        $this->primaryKey = $primaryKey;
-        return $this;
+        return [
+            'actorid' => $this->primaryKey,
+            'username' => $this->username,
+            'preferredUsername' => $this->preferredUsername,
+            'name' => $this->displayName,
+            'summary' => $this->summary,
+            'actortype' => $this->type,
+        ];
     }
 
     public function fieldsToWrite(): array

@@ -31,7 +31,7 @@ class Actors extends Table
 
     public function getActorInfo(string $username): ActorRecord
     {
-        $row = $this->db()->row(
+        $row = $this->db->row(
             "SELECT * FROM {$this->tableName()} WHERE username = ?",
             $username
         );
@@ -49,8 +49,11 @@ class Actors extends Table
 
     #[Override]
     #[ReturnTypeWillChange]
-    public function newRecord(): ActorRecord
+    public function newRecord(?TableRecordInterface $parent = null): ActorRecord
     {
+        if (!is_null($parent)) {
+            throw new TableException('Actor Has no parent');
+        }
         return new ActorRecord();
     }
 }

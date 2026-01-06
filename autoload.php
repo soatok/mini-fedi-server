@@ -6,6 +6,8 @@ use Soatok\MiniFedi\FediServerConfig;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+define('MINIFEDI_BASE_DIR', __DIR__);
+
 // Store in singleton
 FediServerConfig::instance()
     ->withDatabase(require_once __DIR__ . '/config/database.php')

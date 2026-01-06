@@ -3,11 +3,25 @@ declare(strict_types=1);
 namespace Soatok\MiniFedi;
 
 use ParagonIE\EasyDB\EasyDB;
-use Soatok\MiniFedi\Exceptions\TableException;
-use Soatok\MiniFedi\Tables\Records\ActorRecord;
+use Soatok\MiniFedi\Exceptions\ConfigException;
 
 abstract class Table
 {
+    protected EasyDb $db;
+
+    /**
+     * @param EasyDB|null $db
+     * @throws ConfigException
+     */
+    public function __construct(?EasyDB $db = null)
+    {
+        if (is_null($db)) {
+            $config = FediServerConfig::instance();
+            $db = $config->database();
+        }
+        $this->db = $db;
+    }
+
     abstract public function tableName(): string;
 
     abstract public function primaryKeyColumnName(): string;
@@ -63,5 +77,7 @@ abstract class Table
         return $db->commit();
     }
 
-    abstract public function newRecord(): TableRecordInterface;
+    abstract public function newRecord(
+        ?TableRecordInterface $parent = null
+    ): TableRecordInterface;
 }
