@@ -38,13 +38,38 @@ class Actors extends Table
         if (empty($row)) {
             throw new TableException('Actor not found:' .  $username);
         }
-        return new ActorRecord(
+        $actor = new ActorRecord(
             $row['username'],
             $row['name'],
             $row['actortype'],
             $row['summary'],
             $row['preferredUsername'],
         );
+        $actor->setPrimaryKey((int) $row['actorid']);
+        return $actor;
+    }
+
+    /**
+     * @throws TableException
+     */
+    public function getActorById(int $actorId): ActorRecord
+    {
+        $row = $this->db->row(
+            "SELECT * FROM {$this->tableName()} WHERE actorid = ?",
+            $actorId
+        );
+        if (empty($row)) {
+            throw new TableException('Actor not found: ' .  $actorId);
+        }
+        $record = new ActorRecord(
+            $row['username'],
+            $row['name'],
+            $row['actortype'],
+            $row['summary'],
+            $row['preferredUsername'],
+        );
+        $record->setPrimaryKey($row['actorid']);
+        return $record;
     }
 
     #[Override]

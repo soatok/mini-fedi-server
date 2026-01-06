@@ -5,14 +5,14 @@ namespace Soatok\MiniFedi\RequestHandlers;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Soatok\MiniFedi\Tables\InboxTable;
+use Soatok\MiniFedi\Tables\OutboxTable;
 use Soatok\MiniFedi\Traits\ActivityPubTrait;
 use Soatok\MiniFedi\Traits\ReqTrait;
 
 /**
- * /users/{username}/inbox
+ * /users/{username}/Outbox
  */
-class Inbox implements RequestHandlerInterface
+class Outbox implements RequestHandlerInterface
 {
     use ActivityPubTrait;
     use ReqTrait;
@@ -20,7 +20,7 @@ class Inbox implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if (strtolower($request->getMethod()) === 'post') {
-            return $this->handlePostRequest($request, new InboxTable());
+            return $this->handlePostRequest($request, new OutboxTable());
         }
         return $this->handleGetRequest($request);
     }
