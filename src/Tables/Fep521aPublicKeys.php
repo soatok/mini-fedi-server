@@ -3,7 +3,9 @@ declare(strict_types=1);
 namespace Soatok\MiniFedi\Tables;
 
 use ReturnTypeWillChange;
+use Soatok\MiniFedi\Exceptions\ConfigException;
 use Soatok\MiniFedi\Exceptions\TableException;
+use Soatok\MiniFedi\FediServerConfig;
 use Soatok\MiniFedi\Table;
 use Soatok\MiniFedi\TableRecordInterface;
 use Soatok\MiniFedi\Tables\Records\ActorRecord;
@@ -53,9 +55,29 @@ class Fep521aPublicKeys extends Table
         foreach ($rows as $row) {
             $records []= new Fep521aPKRecord(
                 $actor,
-                $row['publickey']
+                $row['publickey'],
+                $row['keyid']
             );
         }
         return $records;
+    }
+
+    /**
+     * @throws ConfigException
+     * @throws TableException
+     */
+    public function getPublicKey(ActorRecord $actor, string $keyId): Fep521aPKRecord
+    {
+        // This is grossly inefficient, but it's only for testing.
+        $keys = $this->getPublicKeysFor($actor);
+        if (empty($keys)) {
+            throw new TableException('No public keys found for this actor');
+        }
+        foreach ($keys as $key) {
+            if ($key->keyId === $keyId) {
+                return $key;
+            }
+        }
+        throw new TableException('No public key found for this Key ID');
     }
 }

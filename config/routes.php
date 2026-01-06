@@ -4,6 +4,7 @@ namespace Soatok\MiniFedi\Config;
 
 use Soatok\MiniFedi\RequestHandlers\{
     Inbox,
+    Outbox,
     Users,
     WebFinger
 };
@@ -17,4 +18,5 @@ $router = new Router();
 $router->map('GET', '/.well-known/webfinger', WebFinger::class);
 $router->map('GET', '/users/{username}', Users::class);
 $router->map(['GET', 'POST'], '/users/{username}/inbox', Inbox::class);
+$router->map(['GET', 'POST'], '/users/{username}/outbox', Outbox::class);
 return $router;

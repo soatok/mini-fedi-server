@@ -5,7 +5,8 @@ namespace Soatok\MiniFedi;
 class RuntimeVars
 {
     public bool $debug = false;
-    public string $hostname = 'localhost:80';
+    public string $domain = 'mini-fedi.localhost';
+    public string $hostname = 'localhost:65233';
 
     public static function fromJson(string $json): RuntimeVars
     {
@@ -23,6 +24,8 @@ class RuntimeVars
     {
         return json_encode([
             'debug' => $this->debug,
+            'domain' => $this->domain,
+            'hostname' => $this->hostname
         ]);
     }
 }

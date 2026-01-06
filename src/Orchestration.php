@@ -44,6 +44,11 @@ class Orchestration
         $this->outbox = new OutboxTable($this->db);
     }
 
+    public function getDb(): EasyDB
+    {
+        return $this->db;
+    }
+
     /**
      * Dump the current tables to a stash
      *
@@ -117,6 +122,7 @@ class Orchestration
     {
         $record = $this->fep521aPublicKeys->newRecord($parent);
         $record->publicKey = $publicKey;
+        $record->keyId = sodium_bin2hex(random_bytes(16));
         if (!$this->fep521aPublicKeys->save($record)) {
             throw new BaseException('Could not save public key');
         }
@@ -227,6 +233,16 @@ class Orchestration
             }
         }
         return $this->db->commit();
+    }
+
+    /**
+     * @return bool
+     * @throws BaseException
+     */
+    public function flushAndUnstash(): bool
+    {
+        $this->truncateAllTables();
+        return $this->unstash();
     }
 
     /**

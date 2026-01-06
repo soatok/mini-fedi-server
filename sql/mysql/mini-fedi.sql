@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS minifedi_actors (
 CREATE TABLE IF NOT EXISTS minifedi_fep_521a_publickeys (
     publickeyid BIGINT AUTO_INCREMENT PRIMARY KEY,
     publickey TEXT,
+    keyid TEXT,
     actor BIGINT,
     FOREIGN KEY (actor) REFERENCES minifedi_actors (actorid)
 );
