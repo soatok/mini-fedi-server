@@ -110,10 +110,12 @@ class Orchestration
 
     /**
      * @throws BaseException
+     *
+     * @api
      */
-    public function createPublicKeyForActor(ActorRecord $paremnt, string $publicKey): Fep521aPKRecord
+    public function createPublicKeyForActor(ActorRecord $parent, string $publicKey): Fep521aPKRecord
     {
-        $record = $this->fep521aPublicKeys->newRecord($paremnt);
+        $record = $this->fep521aPublicKeys->newRecord($parent);
         $record->publicKey = $publicKey;
         if (!$this->fep521aPublicKeys->save($record)) {
             throw new BaseException('Could not save public key');
@@ -121,6 +123,10 @@ class Orchestration
         return $record;
     }
 
+    /**
+     * @api
+     * @throws BaseException
+     */
     public function createInboxMessage(ActorRecord $parent, string $message): InboxRecord
     {
         $record = $this->inbox->newRecord($parent);
@@ -131,6 +137,11 @@ class Orchestration
         return $record;
     }
 
+
+    /**
+     * @api
+     * @throws BaseException
+     */
     public function createOutboxMessage(ActorRecord $parent, string $message): OutboxRecord
     {
         $record = $this->outbox->newRecord($parent);
@@ -142,6 +153,7 @@ class Orchestration
     }
 
     /**
+     * @api
      * @throws TableException
      */
     public function getActor(string $username): ActorRecord
@@ -150,6 +162,7 @@ class Orchestration
     }
 
     /**
+     * @api
      * @throws TableException
      */
     public function getPublicKeyForActor(ActorRecord $actor): array

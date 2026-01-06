@@ -38,5 +38,11 @@
   "require-dev": {
     "phpunit/phpunit": "^10|^11|^12",
     "vimeo/psalm": "^6"
+  },
+  "config": {
+    "process-timeout": 0
+  },
+  "scripts": {
+    "start": "php -S 0.0.0.0:65233 -t public public/index.php"
   }
 }
