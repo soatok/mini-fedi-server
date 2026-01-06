@@ -68,6 +68,11 @@ class Fep521aPublicKeys extends Table
      */
     public function getPublicKey(ActorRecord $actor, string $keyId): Fep521aPKRecord
     {
+        $parsed = parse_url($keyId);
+        if (is_array($parsed) && !empty($parsed['fragment'])) {
+            $keyId = '#' . $parsed['fragment'];
+        }
+
         // This is grossly inefficient, but it's only for testing.
         $keys = $this->getPublicKeysFor($actor);
         if (empty($keys)) {

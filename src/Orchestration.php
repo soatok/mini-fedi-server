@@ -19,6 +19,7 @@ use Soatok\MiniFedi\Tables\Records\{
 };
 use Soatok\MiniFedi\Exceptions\ConfigException;
 use Soatok\MiniFedi\Exceptions\TableException;
+use Throwable;
 
 class Orchestration
 {
@@ -122,7 +123,7 @@ class Orchestration
     {
         $record = $this->fep521aPublicKeys->newRecord($parent);
         $record->publicKey = $publicKey;
-        $record->keyId = sodium_bin2hex(random_bytes(16));
+        $record->keyId = '#main-key';
         if (!$this->fep521aPublicKeys->save($record)) {
             throw new BaseException('Could not save public key');
         }
@@ -225,10 +226,9 @@ class Orchestration
         foreach (array_keys($data) as $table) {
             $rows = $data[$table];
             foreach ($rows as $row) {
-                $fields = [];
-                foreach ($row as $column => $value) {
-                    $fields[$column] = $value;
-                }
+                $fields = array_map(function ($value) {
+                    return $value;
+                }, $row);
                 $this->db->insert($table, $fields);
             }
         }
@@ -277,7 +277,7 @@ class Orchestration
                 throw new BaseException("Unsupported database driver: {$driver}");
             }
             return $this->db->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->db->rollBack();
             throw new BaseException("Failed to truncate tables: " . $e->getMessage());
         }

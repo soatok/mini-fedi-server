@@ -29,7 +29,9 @@ trait ActivityPubTrait
     ): ResponseInterface {
         // Fetch the actor
         $actors = new Actors();
-        $username = $request->getAttribute('username');
+        /** @var array<string, string> $vars */
+        $vars = $request->getAttribute('vars', []);
+        $username = $vars['username'] ?? '';
         if (empty($username)) {
             return $this->error('No username provided');
         }

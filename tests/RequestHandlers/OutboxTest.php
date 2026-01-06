@@ -4,6 +4,10 @@ namespace Soatok\MiniFedi\Tests\RequestHandlers;
 
 use FediE2EE\PKD\Crypto\HttpSignature;
 use FediE2EE\PKD\Crypto\SecretKey;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
 use Laminas\Diactoros\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -11,13 +15,13 @@ use Psr\Http\Message\ServerRequestInterface;
 use Soatok\MiniFedi\Orchestration;
 use Soatok\MiniFedi\RequestHandlers\Outbox;
 use Soatok\MiniFedi\Tables\Actors;
-use Soatok\MiniFedi\Tables\Fep521aPublicKeys;
+use Soatok\MiniFedi\Tables\OutboxTable;
 use TypeError;
 
 #[CoversClass(Outbox::class)]
 class OutboxTest extends TestCase
 {
-    public function testOutboxPost(): void
+    public function testLocalActorOutboxPost(): void
     {
         $orchestration = new Orchestration();
         $actorsTable = new Actors($orchestration->getDb());
@@ -32,9 +36,9 @@ class OutboxTest extends TestCase
 
         $sk = SecretKey::generate();
         $pk = $sk->getPublicKey();
-        $pkRecord = $orchestration->createPublicKeyForActor($actor, $pk->toString());
+        $orchestration->createPublicKeyForActor($actor, $pk->toString());
 
-        $uri = '/users/' . urlencode($actor->username). '/Outbox';
+        $uri = 'https://minifedi.localhost/users/' . urlencode($actor->username) . '/outbox';
         $body = json_encode(['@context' => 'https://www.w3.org/ns/activitystreams', 'type' => 'Follow']);
         $fp = fopen('php://temp', 'w+');
         fwrite($fp, $body);
@@ -42,12 +46,12 @@ class OutboxTest extends TestCase
 
         // Create signed request
         $request = new ServerRequest([], [], $uri, 'POST', $fp);
-        $request = $request->withAttribute('username', $actor->username);
+        $request = $request->withAttribute('vars', ['username' => $actor->username]);
         $signed = $signer->sign(
             $sk,
             $request,
             ['@method', '@path', 'host'],
-            $pkRecord->keyId
+            'https://minifedi.localhost/users/' . urlencode($actor->username) . '#main-key'
         );
 
         if (!($signed instanceof ServerRequestInterface)) {
@@ -57,6 +61,60 @@ class OutboxTest extends TestCase
             $response = $handler->handle($signed);
             $this->assertSame(202, $response->getStatusCode(), 'Outbox post failed');
         } finally {
+            $orchestration->flushAndUnstash();
+        }
+    }
+
+    public function testRemoteActorOutboxPost(): void
+    {
+        $orchestration = new Orchestration();
+        $actorsTable = new Actors($orchestration->getDb());
+        $handler = new Outbox();
+        $signer = new HttpSignature();
+
+        $orchestration->stash();
+        $actor = $orchestration->createActor('phpunit-' . bin2hex(random_bytes(16)));
+        $actor->summary = 'A dummy actor created for PHPUnit testing';
+        $this->assertTrue($actorsTable->save($actor));
+        $this->assertTrue($actor->hasPrimaryKey());
+
+        $sk = SecretKey::generate();
+        $pk = $sk->getPublicKey();
+
+        $uri = 'https://minifedi.localhost/users/' . urlencode($actor->username) . '/outbox';
+        $body = json_encode(['@context' => 'https://www.w3.org/ns/activitystreams', 'type' => 'Follow']);
+        $fp = fopen('php://temp', 'w+');
+        fwrite($fp, $body);
+        fseek($fp, 0);
+
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/activity+json'], json_encode([
+                'publicKey' => [
+                    'publicKeyPem' => $pk->toString()
+                ]
+            ]))
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        OutboxTable::setMockClient(new Client(['handler' => $handlerStack]));
+
+        // Create signed request
+        $request = new ServerRequest([], [], $uri, 'POST', $fp);
+        $request = $request->withAttribute('vars', ['username' => $actor->username]);
+        $signed = $signer->sign(
+            $sk,
+            $request,
+            ['@method', '@path', 'host'],
+            'https://remote.example.com/actor#main-key'
+        );
+
+        if (!($signed instanceof ServerRequestInterface)) {
+            throw new TypeError('Unexpected return type');
+        }
+        try {
+            $response = $handler->handle($signed);
+            $this->assertSame(202, $response->getStatusCode(), 'Outbox post failed');
+        } finally {
+            OutboxTable::clearMockClient();
             $orchestration->flushAndUnstash();
         }
     }
