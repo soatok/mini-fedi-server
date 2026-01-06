@@ -12,6 +12,7 @@ class OrchestrationTest extends TestCase
     public function testOrchestration(): void
     {
         $orchestration = new Orchestration();
+        $orchestration->stash();
         $alice = $orchestration->createActor('alice');
         $bob = $orchestration->createActor('bob');
         $expected = [
@@ -35,5 +36,6 @@ class OrchestrationTest extends TestCase
         $this->assertSame($empty, $orchestration->exportArray());
         $this->assertTrue($orchestration->unstash());
         $this->assertSame($expected, $orchestration->exportArray());
+        $orchestration->unstash();
     }
 }
