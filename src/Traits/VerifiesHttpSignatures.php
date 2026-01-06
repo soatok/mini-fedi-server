@@ -59,9 +59,24 @@ trait VerifiesHttpSignatures
         // 1. Get the keyId from the signature header.
         $signatureInput = $request->getHeaderLine('Signature-Input');
         if (!preg_match('/keyid="([^"]+)"/', $signatureInput, $matches)) {
-            throw new InvalidRequestException('No keyId found in Signature-Input header');
+            // If it's not provided, we need to get it from the actor property
+            // in the request body.
+            $body = (string) $request->getBody();
+            if (empty($body)) {
+                throw new InvalidRequestException('Empty request body');
+            }
+            $request->getBody()->rewind();
+            $decoded = json_decode($body, true);
+            if (!is_array($decoded)) {
+                throw new InvalidRequestException('Invalid JSON');
+            }
+            if (empty($decoded['actor'])) {
+                throw new InvalidRequestException('No actor property in request body');
+            }
+            $keyId = $decoded['actor'];
+        } else {
+            $keyId = $matches[1];
         }
-        $keyId = $matches[1];
 
         // 2. Fetch the public key.
         $keyIdUrl = parse_url($keyId);

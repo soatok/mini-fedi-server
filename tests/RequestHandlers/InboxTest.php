@@ -61,6 +61,64 @@ class InboxTest extends TestCase
             $response = $handler->handle($signed);
             $this->assertSame(202, $response->getStatusCode(), 'Inbox post failed');
         } finally {
+            InboxTable::clearMockClient();
+            $orchestration->flushAndUnstash();
+        }
+    }
+
+    public function testRemoteActorInboxPostNoKeyId(): void
+    {
+        $orchestration = new Orchestration();
+        $actorsTable = new Actors($orchestration->getDb());
+        $handler = new Inbox();
+        $signer = new HttpSignature();
+
+        $orchestration->stash();
+        $actor = $orchestration->createActor('phpunit-' . bin2hex(random_bytes(16)));
+        $actor->summary = 'A dummy actor created for PHPUnit testing';
+        $this->assertTrue($actorsTable->save($actor));
+        $this->assertTrue($actor->hasPrimaryKey());
+
+        $sk = SecretKey::generate();
+        $pk = $sk->getPublicKey();
+        $remoteActorUrl = 'https://remote.example.com/actor';
+
+        $uri = 'https://minifedi.localhost/users/' . urlencode($actor->username) . '/inbox';
+        $body = json_encode([
+            '@context' => 'https://www.w3.org/ns/activitystreams',
+            'type' => 'Follow',
+            'actor' => $remoteActorUrl
+        ]);
+        $fp = fopen('php://temp', 'w+');
+        fwrite($fp, $body);
+        fseek($fp, 0);
+
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/activity+json'], json_encode([
+                'publicKey' => [
+                    'publicKeyPem' => $pk->toString()
+                ]
+            ]))
+        ]);
+        $handlerStack = HandlerStack::create($mock);
+        InboxTable::setMockClient(new Client(['handler' => $handlerStack]));
+
+        // Create signed request
+        $request = new ServerRequest([], [], $uri, 'POST', $fp);
+        $request = $request->withAttribute('vars', ['username' => $actor->username]);
+        $signed = $signer->sign(
+            $sk,
+            $request,
+            ['@method', '@path', 'host']
+        );
+
+        if (!($signed instanceof ServerRequestInterface)) {
+            throw new TypeError('Unexpected return type');
+        }
+        try {
+            $response = $handler->handle($signed);
+            $this->assertSame(202, $response->getStatusCode(), 'Inbox post failed');
+        } finally {
             $orchestration->flushAndUnstash();
         }
     }
