@@ -19,6 +19,7 @@
         <MissingOverrideAttribute errorLevel="info" />
         <PossiblyUnusedMethod errorLevel="info" />
         <PossiblyUnusedReturnValue errorLevel="info" />
+        <UndefinedConstant errorLevel="info" />
         <UnusedClass errorLevel="info" />
         <UnusedVariable errorLevel="info" />
     </issueHandlers>

@@ -53,10 +53,8 @@ class Orchestration
     {
         $filename = tempnam(
             MINIFEDI_BASE_DIR . '/tmp/',
-            'dump='
-            )
-            . '_'
-            . bin2hex(random_bytes(16));
+            'dump_' . bin2hex(random_bytes(16))
+        );
         if (!$this->dumpToFile($filename)) {
             return false;
         }
@@ -77,7 +75,11 @@ class Orchestration
         }
         $filename = array_pop($this->stash);
         $this->truncateAllTables();
-        return $this->loadFromFile($filename);
+        if (!$this->loadFromFile($filename)) {
+            throw new BaseException('Could not unstash');
+        }
+        unlink($filename);
+        return true;
     }
 
     /**
