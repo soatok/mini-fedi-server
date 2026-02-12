@@ -25,7 +25,7 @@
     "php": "^8.2",
     "ext-pdo": "*",
     "ezyang/htmlpurifier": "^4",
-    "fedi-e2ee/pkd-crypto": "^0.34|^1",
+    "fedi-e2ee/pkd-crypto": ">= 0.35 || >= 1",
     "guzzlehttp/guzzle": "^6|^7",
     "laminas/laminas-diactoros": "^3",
     "laminas/laminas-httphandlerrunner": "^2",
