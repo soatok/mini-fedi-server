@@ -26,7 +26,7 @@ class WebFinger implements RequestHandlerInterface
     public function __construct(?FediServerConfig $config = null, bool $allowRemoteLookups = true)
     {
         if (is_null($config)) {
-            $config = new FediServerConfig();
+            $config = FediServerConfig::instance();
         }
         $this->config = $config;
         $this->allowRemoteLookups = $allowRemoteLookups;
