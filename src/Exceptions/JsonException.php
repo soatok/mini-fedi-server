@@ -2,7 +2,4 @@
 declare(strict_types=1);
 namespace Soatok\MiniFedi\Exceptions;
 
-class JsonException extends BaseException
-{
-
-}
+class JsonException extends BaseException {}

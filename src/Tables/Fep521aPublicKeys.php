@@ -14,7 +14,6 @@ use TypeError;
 
 class Fep521aPublicKeys extends Table
 {
-
     public function tableName(): string
     {
         return 'minifedi_fep_521a_publickeys';
@@ -53,7 +52,7 @@ class Fep521aPublicKeys extends Table
         );
         $records = [];
         foreach ($rows as $row) {
-            $records []= new Fep521aPKRecord(
+            $records [] = new Fep521aPKRecord(
                 $actor,
                 $row['publickey'],
                 $row['keyid']

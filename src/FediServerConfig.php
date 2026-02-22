@@ -68,7 +68,7 @@ class FediServerConfig
         if (is_null($this->twig)) {
             throw new ConfigException('Twig environment not set');
         }
-        return $this->twig;;
+        return $this->twig;
     }
 
     public function withDatabase(EasyDB $db): self
