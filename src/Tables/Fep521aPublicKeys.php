@@ -5,7 +5,6 @@ namespace Soatok\MiniFedi\Tables;
 use ReturnTypeWillChange;
 use Soatok\MiniFedi\Exceptions\ConfigException;
 use Soatok\MiniFedi\Exceptions\TableException;
-use Soatok\MiniFedi\FediServerConfig;
 use Soatok\MiniFedi\Table;
 use Soatok\MiniFedi\TableRecordInterface;
 use Soatok\MiniFedi\Tables\Records\ActorRecord;
